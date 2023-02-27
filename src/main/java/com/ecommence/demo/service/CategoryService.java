@@ -20,4 +20,12 @@ public class CategoryService {
     public List<Category> listCategory() {
         return categoryRepository.findAll();
     }
+
+    public void updateCategory(int categoryId, Category updateCategory) {
+        Category category = categoryRepository.findById(categoryId).get();
+        category.setCategoryName(updateCategory.getCategoryName());
+        category.setDescription(updateCategory.getDescription());
+        category.setImageUrl(updateCategory.getImageUrl());
+        categoryRepository.save(category);
+    }
 }
