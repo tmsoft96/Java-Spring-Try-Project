@@ -2,7 +2,11 @@ package com.ecommence.demo.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ecommence.demo.common.ApiResponse;
 import com.ecommence.demo.model.Category;
 import com.ecommence.demo.service.CategoryService;
 
@@ -20,20 +25,27 @@ public class CategoryController {
     CategoryService categoryService;
 
     @PostMapping("/create")
-    public String createCategory(@RequestBody Category category) {
+    public ResponseEntity<ApiResponse> createCategory(@RequestBody Category category) {
         categoryService.createCategory(category);
-        return "success";
+        return new ResponseEntity<>(new ApiResponse(true, "Create a new Category"), HttpStatus.CREATED);
     }
 
     @GetMapping("/list")
     public List<Category> listCategory() {
-       return categoryService.listCategory();
+        return categoryService.listCategory();
     }
 
     @PostMapping("/update/{categoryId}")
-    public String updateCategory(@PathVariable("categoryId") int categoryId, @RequestBody Category category) {
+    public ResponseEntity<ApiResponse> updateCategory(
+            @PathVariable("categoryId") int categoryId,
+            @Valid @RequestBody Category category) {
         System.out.println("Category ID => " + categoryId);
+
+        if (!categoryService.findById(categoryId)) {
+            return new ResponseEntity<>(new ApiResponse(false, "Category does not exit"), HttpStatus.NOT_FOUND);
+        }
+
         categoryService.updateCategory(categoryId, category);
-        return "testing";
+        return new ResponseEntity<>(new ApiResponse(true, "Category updated successfully"), HttpStatus.OK);
     }
 }
